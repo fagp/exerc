@@ -10,6 +10,7 @@ class LeNetPL(pl.LightningModule):
         super().__init__()
         self.lenet = model(num_classes)
         self.num_classes = num_classes
+        self.iteration = 0
 
     def forward(self, input):
         try:
@@ -31,9 +32,21 @@ class LeNetPL(pl.LightningModule):
         return loss
 
     def training_step(self, batch, batch_ind):
+        self.iteration += 1
         x, y = batch
         z = self.forward(x)
         loss = self.loss_function(z, y)
+        self.logger.experiment.add_scalar(
+            "training_loss", loss, self.iteration
+        )
+        self.log(
+            "training_loss",
+            loss,
+            on_step=True,
+            on_epoch=False,
+            prog_bar=True,
+            logger=True,
+        )
         return loss
 
     def configure_optimizers(self):
