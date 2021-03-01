@@ -11,6 +11,7 @@ class LeNetPL(pl.LightningModule):
         self.lenet = model(num_classes)
         self.num_classes = num_classes
         self.iteration = 0
+        self.accuracy = pl.metrics.Accuracy()
 
     def forward(self, input):
         try:
@@ -46,6 +47,9 @@ class LeNetPL(pl.LightningModule):
             on_epoch=False,
             prog_bar=True,
             logger=True,
+        )
+        self.logger.experiment.add_scalar(
+            "train_accuracy", self.accuracy(z, y), self.iteration
         )
         return loss
 
