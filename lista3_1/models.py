@@ -49,7 +49,9 @@ class LeNetPL(pl.LightningModule):
             logger=True,
         )
         self.logger.experiment.add_scalar(
-            "train_accuracy", self.accuracy(z, y), self.iteration
+            "train_accuracy",
+            self.accuracy(torch.nn.functional.softmax(z, 1), y),
+            self.iteration,
         )
         return loss
 
