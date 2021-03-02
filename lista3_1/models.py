@@ -71,4 +71,4 @@ def train_model(model, dataset, batch_size=1, epochs=10):
         trainer = pl.Trainer(max_epochs=epochs, progress_bar_refresh_rate=40)
 
     trainer.fit(net, data.DataLoader(dataset, batch_size=batch_size))
-    return trainer
+    return net
