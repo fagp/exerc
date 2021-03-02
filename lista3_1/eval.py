@@ -13,7 +13,7 @@ def compute_test_accuracy(test_dataset, model):
   pred_MNIST = []
   target_MNIST =[]
   
-  model_MNIST.eval()
+  model.eval()
   for image, target in test_dataset:
     pred = model(wrap_input(image))
     target_MNIST.append(target)
