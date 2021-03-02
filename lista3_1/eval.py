@@ -9,7 +9,7 @@ def unwrap_output(pred):
   pred = F.softmax(pred,1)
   return pred[0].detach().cpu().argmax().numpy().tolist()
   
-def compute_test_accuracy(test_dataset)
+def compute_test_accuracy(test_dataset):
   pred_MNIST = []
   target_MNIST =[]
   
