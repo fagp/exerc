@@ -9,13 +9,13 @@ def unwrap_output(pred):
   pred = F.softmax(pred,1)
   return pred[0].detach().cpu().argmax().numpy().tolist()
   
-def compute_test_accuracy(test_dataset):
+def compute_test_accuracy(test_dataset, model):
   pred_MNIST = []
   target_MNIST =[]
   
   model_MNIST.eval()
   for image, target in test_dataset:
-    pred = model_MNIST(wrap_input(image))
+    pred = model(wrap_input(image))
     target_MNIST.append(target)
     pred_MNIST.append(unwrap_output(pred))
   
