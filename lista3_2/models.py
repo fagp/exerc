@@ -124,6 +124,7 @@ class UnetPL(pl.LightningModule):
         ssim_val = ssim(
             y[0].cpu().numpy().transpose((2, 1, 0)),
             z[0].detach().cpu().numpy().transpose((2, 1, 0)),
+            multichannel=True,
         )
         self.logger.experiment.add_scalar(
             "training_ssim", ssim_val, self.iteration
