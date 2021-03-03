@@ -82,6 +82,7 @@ class UnetPL(pl.LightningModule):
         self.unet = Unet(input_channels, output_channels)
         self.ssim = pl.metrics.SSIM()
         self.iteration = 0
+        self.plot_iteration = 0
 
     def forward(self, input):
         assert input.shape[1:] == (
@@ -133,14 +134,24 @@ class UnetPL(pl.LightningModule):
         )
 
         if (batch_ind % 40) == 0:
+            self.plot_iteration += 1
             self.logger.experiment.add_image(
-                "Noisy image", x[0], self.current_epoch, dataformats="CHW"
+                "Noisy image",
+                x[0] * 255,
+                self.plot_iteration,
+                dataformats="CWH",
             )
             self.logger.experiment.add_image(
-                "Ground Truth", y[0], self.current_epoch, dataformats="CHW"
+                "Ground Truth",
+                y[0] * 255,
+                self.plot_iteration,
+                dataformats="CWH",
             )
             self.logger.experiment.add_image(
-                "Reconstruction", z[0], self.current_epoch, dataformats="CHW"
+                "Reconstruction",
+                z[0] * 255,
+                self.plot_iteration,
+                dataformats="CWH",
             )
 
         return loss
