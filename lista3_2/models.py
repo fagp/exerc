@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
+from torch.utils import data
 import pytorch_lightning as pl
-
+from skimage.metrics import structural_similarity as ssim
 
 # Unet architecture
 class Unet(nn.Module):
@@ -77,12 +78,12 @@ class unetUp(nn.Module):
 
 
 class UnetPL(pl.LightningModule):
-    def __init__(self, input_channels=3, output_channels=3):
+    def __init__(self, input_channels=3, output_channels=3, lr=1e-3):
         super().__init__()
         self.unet = Unet(input_channels, output_channels)
-        self.ssim = pl.metrics.SSIM()
         self.iteration = 0
         self.plot_iteration = 0
+        self.lr = lr
 
     def forward(self, input):
         assert input.shape[1:] == (
@@ -120,13 +121,16 @@ class UnetPL(pl.LightningModule):
             logger=True,
         )
 
-        ssim = self.ssim(z, y)
+        ssim_val = ssim(
+            y.cpu().numpy().transpose((2, 1, 0)),
+            z.detach().cpu().numpy().transpose((2, 1, 0)),
+        )
         self.logger.experiment.add_scalar(
-            "training_ssim", ssim, self.iteration
+            "training_ssim", ssim_val, self.iteration
         )
         self.log(
             "training_ssim",
-            ssim,
+            ssim_val,
             on_step=True,
             on_epoch=False,
             prog_bar=True,
@@ -157,13 +161,13 @@ class UnetPL(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
         return optimizer
 
 
 # calling trainning
-def train_model(dataset, batch_size=10, epochs=10):
-    net = UnetPL()
+def train_model(dataset, batch_size=10, epochs=10, lr=1e-3):
+    net = UnetPL(lr=lr)
     if torch.cuda.is_available():
         trainer = pl.Trainer(
             gpus=1, max_epochs=epochs, progress_bar_refresh_rate=10
@@ -172,6 +176,7 @@ def train_model(dataset, batch_size=10, epochs=10):
         trainer = pl.Trainer(max_epochs=epochs, progress_bar_refresh_rate=10)
 
     trainer.fit(
-        net, torch.utils.data.DataLoader(dataset, batch_size=batch_size)
+        net,
+        data.DataLoader(dataset, batch_size=batch_size, shuffle=True),
     )
     return net

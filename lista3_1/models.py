@@ -6,12 +6,13 @@ import pytorch_lightning as pl
 
 # pytorch lightning module
 class LeNetPL(pl.LightningModule):
-    def __init__(self, model, num_classes=10):
+    def __init__(self, model, num_classes=10, lr=1e-3):
         super().__init__()
         self.lenet = model(num_classes)
         self.num_classes = num_classes
         self.accuracy = pl.metrics.Accuracy()
         self.iteration = 0
+        self.lr = lr
 
     def forward(self, input):
         try:
@@ -68,13 +69,13 @@ class LeNetPL(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
         return optimizer
 
 
 # calling trainning
-def train_model(model, dataset, batch_size=1, epochs=10):
-    net = LeNetPL(model)
+def train_model(model, dataset, batch_size=1, epochs=10, lr=1e-3):
+    net = LeNetPL(model, lr=lr)
     if torch.cuda.is_available():
         trainer = pl.Trainer(
             gpus=1, max_epochs=epochs, progress_bar_refresh_rate=40
@@ -82,5 +83,7 @@ def train_model(model, dataset, batch_size=1, epochs=10):
     else:
         trainer = pl.Trainer(max_epochs=epochs, progress_bar_refresh_rate=40)
 
-    trainer.fit(net, data.DataLoader(dataset, batch_size=batch_size))
+    trainer.fit(
+        net, data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    )
     return net
