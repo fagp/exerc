@@ -122,8 +122,8 @@ class UnetPL(pl.LightningModule):
         )
 
         ssim_val = ssim(
-            y.cpu().numpy().transpose((2, 1, 0)),
-            z.detach().cpu().numpy().transpose((2, 1, 0)),
+            y[0].cpu().numpy().transpose((2, 1, 0)),
+            z[0].detach().cpu().numpy().transpose((2, 1, 0)),
         )
         self.logger.experiment.add_scalar(
             "training_ssim", ssim_val, self.iteration
