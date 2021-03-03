@@ -10,8 +10,8 @@ class LeNetPL(pl.LightningModule):
         super().__init__()
         self.lenet = model(num_classes)
         self.num_classes = num_classes
-        self.iteration = 0
         self.accuracy = pl.metrics.Accuracy()
+        self.iteration = 0
 
     def forward(self, input):
         try:
@@ -37,6 +37,7 @@ class LeNetPL(pl.LightningModule):
         x, y = batch
         z = self.forward(x)
         loss = self.loss_function(z, y)
+
         self.logger.experiment.add_scalar(
             "training_loss", loss, self.iteration
         )
@@ -48,11 +49,22 @@ class LeNetPL(pl.LightningModule):
             prog_bar=True,
             logger=True,
         )
+
+        accuracy = self.accuracy(torch.nn.functional.softmax(z, 1), y)
         self.logger.experiment.add_scalar(
             "train_accuracy",
-            self.accuracy(torch.nn.functional.softmax(z, 1), y),
+            accuracy,
             self.iteration,
         )
+        self.log(
+            "train_accuracy",
+            accuracy,
+            on_step=True,
+            on_epoch=False,
+            prog_bar=True,
+            logger=True,
+        )
+
         return loss
 
     def configure_optimizers(self):
