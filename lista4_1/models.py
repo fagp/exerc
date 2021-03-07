@@ -1,7 +1,7 @@
 import torch
 import pytorch_lightning as pl
 from .datasets import test_triplet_dataset, training_triplet_dataset
-from .visualization import visualize_space, visualize_tuple
+from .visualization import visualize_space, visualize_tuple, visualize_10_space
 
 
 class ConvNet(torch.nn.Module):
