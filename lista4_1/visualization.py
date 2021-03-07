@@ -25,7 +25,8 @@ def visualize_10_space(dataset, net, device):
     ax = fig.gca()
 
     for i in range(10):
-        positives, _, _ = dataset[i].unsqueeze(0)
+        positives, _, _ = dataset[i]
+        positives = positives.unsqueeze(0)
         for _ in range(4):
             x, _, _ = dataset[i]
             positives = torch.cat((positives, x.unsqueeze(0)), 0)
