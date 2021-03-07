@@ -1,7 +1,7 @@
 import torch
 import pytorch_lightning as pl
 from .datasets import test_triplet_dataset, training_triplet_dataset
-from .visualization import visualize_space
+from .visualization import visualize_space, visualize_tuple
 
 
 class ConvNet(torch.nn.Module):
@@ -96,8 +96,8 @@ class TripletConvNetPL(pl.LightningModule):
             logger=True,
         )
 
-        pos_dist = torch.diagonal(self.pdist(emb_anchor, emb_positive)).mean()
-        neg_dist = torch.diagonal(self.pdist(emb_anchor, emb_negative)).mean()
+        pos_dist = self.pdist(emb_anchor, emb_positive).mean()
+        neg_dist = self.pdist(emb_anchor, emb_negative).mean()
 
         self.logger.experiment.add_scalar(
             "positive_distance", pos_dist, self.iteration
@@ -129,6 +129,15 @@ class TripletConvNetPL(pl.LightningModule):
             self.logger.experiment.add_image(
                 "Embedded space",
                 visualize_space(
+                    training_triplet_dataset, self.net, self.device
+                ),
+                self.plot_iteration,
+                dataformats="CWH",
+            )
+
+            self.logger.experiment.add_image(
+                "Tuple",
+                visualize_tuple(
                     training_triplet_dataset, self.net, self.device
                 ),
                 self.plot_iteration,

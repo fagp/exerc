@@ -50,7 +50,7 @@ class ComparingDataset(torch.utils.data.Dataset):
         image_pos = self.random_transform(_img)
 
         image_neg = imageio.imread(
-            self.images[random.randint(0, len(self.images))]
+            self.images[random.randint(0, len(self.images) - 1)]
         )
         if image_neg.ndim == 2:
             image_neg = image_neg[:, :, np.newaxis]
