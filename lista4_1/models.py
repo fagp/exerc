@@ -127,8 +127,17 @@ class TripletConvNetPL(pl.LightningModule):
             self.plot_iteration += 1
 
             self.logger.experiment.add_image(
-                "Embedded space",
+                "Embedded posVSneg",
                 visualize_space(
+                    training_triplet_dataset, self.net, self.device
+                ),
+                self.plot_iteration,
+                dataformats="CWH",
+            )
+
+            self.logger.experiment.add_image(
+                "Embedded space",
+                visualize_10_space(
                     training_triplet_dataset, self.net, self.device
                 ),
                 self.plot_iteration,
