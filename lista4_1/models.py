@@ -54,7 +54,7 @@ class ConvNet(torch.nn.Module):
         z = self.avg_pool(x).view(-1, 512)
         embedding = self.fc(z)
 
-        return torch.nn.functional.sigmoid(embedding)
+        return embedding
 
 
 class TripletConvNetPL(pl.LightningModule):
