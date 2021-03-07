@@ -62,8 +62,10 @@ class TripletConvNetPL(pl.LightningModule):
         super().__init__()
         self.net = ConvNet(input_channels)
         self.plot_iteration = 0
+        self.iteration = 0
         self.lr = lr
         self.criterion = criterion
+        self.pdist = torch.nn.PairwiseDistance(p=2)
 
     def forward(self, x, y, z):
         return self.net(x), self.net(y), self.net(z)
@@ -72,6 +74,7 @@ class TripletConvNetPL(pl.LightningModule):
         return self.criterion(anchor, positive, negative)
 
     def training_step(self, batch, batch_ind):
+        self.iteration += 1
         anchor, positive, negative = batch
 
         emb_anchor, emb_positive, emb_negative = self.forward(
@@ -79,6 +82,45 @@ class TripletConvNetPL(pl.LightningModule):
         )
         loss = self.triplet_loss_function(
             emb_anchor, emb_positive, emb_negative
+        )
+
+        self.logger.experiment.add_scalar(
+            "training_loss", loss, self.iteration
+        )
+        self.log(
+            "training_loss",
+            loss,
+            on_step=True,
+            on_epoch=False,
+            prog_bar=True,
+            logger=True,
+        )
+
+        pos_dist = torch.diagonal(self.pdist(emb_anchor, emb_positive)).mean()
+        neg_dist = torch.diagonal(self.pdist(emb_anchor, emb_negative)).mean()
+
+        self.logger.experiment.add_scalar(
+            "positive_distance", pos_dist, self.iteration
+        )
+        self.log(
+            "positive_distance",
+            pos_dist,
+            on_step=True,
+            on_epoch=False,
+            prog_bar=True,
+            logger=True,
+        )
+
+        self.logger.experiment.add_scalar(
+            "negative_distance", neg_dist, self.iteration
+        )
+        self.log(
+            "negative_distance",
+            neg_dist,
+            on_step=True,
+            on_epoch=False,
+            prog_bar=True,
+            logger=True,
         )
 
         if (batch_ind % 40) == 0:
