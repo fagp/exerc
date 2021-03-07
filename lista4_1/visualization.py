@@ -59,23 +59,18 @@ def visualize_tuple(dataset, net, device):
     plt.grid(False)
     plt.imshow(anchor.numpy().transpose(2, 1, 0) * 255)
 
-    plt.subplot(
-        1, 3, 2, title="Positive distance: {:1.4f}".format(pos_dist.item())
-    )
+    plt.subplot(1, 3, 2, title="Pos: {:1.4f}".format(pos_dist.item()))
     plt.xticks([])
     plt.yticks([])
     plt.grid(False)
     plt.imshow(positives.numpy().transpose(2, 1, 0) * 255)
 
-    plt.subplot(
-        1, 3, 3, title="Negative distance: {:1.4f}".format(neg_dist.item())
-    )
+    plt.subplot(1, 3, 3, title="Neg: {:1.4f}".format(neg_dist.item()))
     plt.xticks([])
     plt.yticks([])
     plt.grid(False)
     plt.imshow(negatives.numpy().transpose(2, 1, 0) * 255)
 
     vimage = plot_to_image(figure)
-    print(vimage.shape)
 
     return torch.from_numpy(vimage[:, :, :3].transpose((2, 1, 0)))
