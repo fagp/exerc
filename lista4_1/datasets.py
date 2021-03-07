@@ -25,7 +25,7 @@ class ComparingDataset(torch.utils.data.Dataset):
         scale = 0.2 * random.random() + 0.9
         img_1 = rescale(img_1, (scale, scale, 1))
 
-        min_size = tuple([min(dim, 256) for dim in img_1.shape])
+        min_size = tuple([min(dim, 128) for dim in img_1.shape])
         top_left_x, top_left_y, _ = (
             np.array(img_1.shape) // 2 - np.array(min_size) // 2
         )
@@ -35,7 +35,7 @@ class ComparingDataset(torch.utils.data.Dataset):
             top_left_y : top_left_y + min_size[1],
             :,
         ]
-        img_1 = resize(img_1, (256, 256))
+        img_1 = resize(img_1, (128, 128))
         img_1 = img_1.astype(np.float) / 255.0
 
         return img_1

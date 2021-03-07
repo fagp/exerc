@@ -161,7 +161,7 @@ class TripletConvNetPL(pl.LightningModule):
 
 
 # calling training
-def train_model(criterion, batch_size=10, batch_acc=4, epochs=10, lr=1e-3):
+def train_model(criterion, batch_size=10, batch_acc=1, epochs=10, lr=1e-3):
     net = TripletConvNetPL(lr=lr, criterion=criterion)
     if torch.cuda.is_available():
         trainer = pl.Trainer(
