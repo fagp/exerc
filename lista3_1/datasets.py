@@ -7,7 +7,7 @@ from torch.utils import data
 class ScaledMNist(data.Dataset):
     def __init__(self, train=True):
         self.data = torchvision.datasets.MNIST(
-            root="./data",
+            root="/content/",
             train=train,
             transform=torchvision.transforms.ToTensor(),
             download=True,
@@ -31,13 +31,13 @@ scaled_MNIST_test = ScaledMNist(train=False)
 
 # Original MNIST dataset (fixed size)
 MNIST_train = torchvision.datasets.MNIST(
-    root="./data",
+    root="/content/",
     train=True,
     transform=torchvision.transforms.ToTensor(),
     download=True,
 )
 MNIST_test = torchvision.datasets.MNIST(
-    root="./data",
+    root="/content/",
     train=False,
     transform=torchvision.transforms.ToTensor(),
     download=True,
