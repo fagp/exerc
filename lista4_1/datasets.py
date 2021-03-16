@@ -23,7 +23,7 @@ class ComparingDataset(torch.utils.data.Dataset):
         img_1 = rotate(image, angle, resize=False)
 
         scale = 0.2 * random.random() + 0.9
-        img_1 = rescale(img_1, (scale, scale, 1))
+        img_1 = rescale(img_1, scale)
 
         min_size = tuple([min(dim, 128) for dim in img_1.shape])
         top_left_x, top_left_y, _ = (

@@ -46,13 +46,11 @@ class ConvNet(torch.nn.Module):
             torch.nn.ReLU(),
         )
 
-        self.avg_pool = torch.nn.AdaptiveAvgPool2d(1)
-        self.fc = torch.nn.Linear(in_features=512, out_features=2)
+        self.fc = torch.nn.Linear(in_features=8388608, out_features=2)
 
     def forward(self, x):
         x = self.features(x)
-        z = self.avg_pool(x).view(-1, 512)
-        embedding = self.fc(z)
+        embedding = self.fc(x.view(-1, 8388608))
 
         return torch.sigmoid(embedding)
 

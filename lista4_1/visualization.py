@@ -32,10 +32,7 @@ def visualize_10_space(dataset, net, device):
             positives = torch.cat((positives, x.unsqueeze(0)), 0)
 
         emb_1 = net(positives.to(device).float()).detach().cpu().numpy()
-
-        # circle1 = plt.Circle(np.mean(emb_1, 0), 1, fill=False)
         ax.scatter(list(emb_1[:, 0]), list(emb_1[:, 1]), c=colors[i])
-        # ax.add_patch(circle1)
 
     canvas.draw()
     s, (width, height) = canvas.print_to_buffer()
@@ -60,10 +57,8 @@ def visualize_space(dataset, net, device):
     fig = Figure()
     canvas = FigureCanvas(fig)
     ax = fig.gca()
-    # circle1 = plt.Circle(np.mean(emb_1, 0), 1, fill=False)
     ax.scatter(list(emb_1[:, 0]), list(emb_1[:, 1]), c="red")
     ax.scatter(list(emb_2[:, 0]), list(emb_2[:, 1]), c="black")
-    # ax.add_patch(circle1)
     canvas.draw()
     s, (width, height) = canvas.print_to_buffer()
     vimage = np.fromstring(s, dtype="uint8").reshape(height, width, 4)
