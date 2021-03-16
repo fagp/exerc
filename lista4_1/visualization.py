@@ -106,3 +106,44 @@ def visualize_tuple(dataset, net, device):
     vimage = plot_to_image(figure)
 
     return torch.from_numpy(vimage[:, :, :3].transpose((2, 1, 0)))
+
+
+def visualize_retrieval(test_dataset, model, device):
+    model.eval()
+    device = (
+        torch.device("cuda:0")
+        if torch.cuda.is_available()
+        else torch.device("cpu")
+    )
+    model.to(device)
+    for i, (positives, anchor, negatives) in enumerate(test_dataset):
+        anchor = anchor.unsqueeze(0)
+        positives = positives.unsqueeze(0)
+        negatives = negatives.unsqueeze(0)
+
+        for _ in range(4):
+            x, _, y = test_dataset[i]
+            anchor = torch.cat((anchor, anchor[0].unsqueeze(0)), 0)
+            positives = torch.cat((positives, x.unsqueeze(0)), 0)
+            negatives = torch.cat((negatives, y.unsqueeze(0)), 0)
+
+        emb_0, emb_1, emb_2 = model(
+            wrap_input(anchor).to(device),
+            wrap_input(positives).to(device),
+            wrap_input(negatives).to(device),
+        )
+        pos_dist = torch.nn.functional.pairwise_distance(emb_0, emb_1)
+        neg_dist = torch.nn.functional.pairwise_distance(emb_0, emb_2)
+
+        dist = unwrap_output(torch.cat((pos_dist, neg_dist), 0))
+        retrieval = np.argsort(dist)
+        exemplos = torch.cat((positives, negatives), 0).cpu().numpy()
+
+        figure = plt.figure()
+        plt.subplot(i, 11, 1, title="Anchor")
+        plt.imshow(anchor[0].numpy().transpose(2, 1, 0) * 255)
+        for k in range(10):
+            plt.subplot(i, 11, k + 2)
+            plt.imshow(exemplos.transpose(2, 1, 0) * 255)
+
+    return torch.from_numpy(vimage[:, :, :3].transpose((2, 1, 0)))

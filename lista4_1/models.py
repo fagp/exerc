@@ -163,6 +163,7 @@ def train_model(criterion, batch_size=10, batch_acc=1, epochs=10, lr=1e-3):
     net = TripletConvNetPL(lr=lr, criterion=criterion)
     if torch.cuda.is_available():
         trainer = pl.Trainer(
+            default_root_dir="/content/gdrive/MyDrive/Colab Notebooks/resultados_lista4.1/",
             gpus=1,
             max_epochs=epochs,
             progress_bar_refresh_rate=10,
@@ -170,6 +171,7 @@ def train_model(criterion, batch_size=10, batch_acc=1, epochs=10, lr=1e-3):
         )
     else:
         trainer = pl.Trainer(
+            default_root_dir="/content/gdrive/MyDrive/Colab Notebooks/resultados_lista4.1/",
             max_epochs=epochs,
             progress_bar_refresh_rate=10,
             accumulate_grad_batches=batch_acc,

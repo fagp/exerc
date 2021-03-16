@@ -78,10 +78,17 @@ def train_model(model, dataset, batch_size=1, epochs=10, lr=1e-3):
     net = LeNetPL(model, lr=lr)
     if torch.cuda.is_available():
         trainer = pl.Trainer(
-            gpus=1, max_epochs=epochs, progress_bar_refresh_rate=40
+            default_root_dir="/content/gdrive/MyDrive/Colab Notebooks/resultados_lista3.1/",
+            gpus=1,
+            max_epochs=epochs,
+            progress_bar_refresh_rate=40,
         )
     else:
-        trainer = pl.Trainer(max_epochs=epochs, progress_bar_refresh_rate=40)
+        trainer = pl.Trainer(
+            default_root_dir="/content/gdrive/MyDrive/Colab Notebooks/resultados_lista3.1/",
+            max_epochs=epochs,
+            progress_bar_refresh_rate=40,
+        )
 
     trainer.fit(
         net, data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
