@@ -74,7 +74,7 @@ def plot_to_image(figure):
 
 
 def visualize_tuple(dataset, net, device):
-    index = random.randint(0, len(dataset))
+    index = random.randint(0, len(dataset) - 1)
     anchor, positives, negatives = dataset[index]
 
     emb_0 = net(anchor.unsqueeze(0).to(device).float()).detach()
@@ -108,42 +108,95 @@ def visualize_tuple(dataset, net, device):
     return torch.from_numpy(vimage[:, :, :3].transpose((2, 1, 0)))
 
 
-def visualize_retrieval(test_dataset, model, device):
+def visualize_retrieval(test_dataset, model, model2):
     model.eval()
+    model2.eval()
     device = (
         torch.device("cuda:0")
         if torch.cuda.is_available()
         else torch.device("cpu")
     )
     model.to(device)
-    for i, (positives, anchor, negatives) in enumerate(test_dataset):
+    model2.to(device)
+    total_rows = 5
+    total_columns = 5
+    for i in range(total_rows):
+        anchor, positives, negatives = test_dataset[i]
         anchor = anchor.unsqueeze(0)
         positives = positives.unsqueeze(0)
         negatives = negatives.unsqueeze(0)
 
-        for _ in range(4):
+        for _ in range(total_columns - 1):
             x, _, y = test_dataset[i]
             anchor = torch.cat((anchor, anchor[0].unsqueeze(0)), 0)
             positives = torch.cat((positives, x.unsqueeze(0)), 0)
             negatives = torch.cat((negatives, y.unsqueeze(0)), 0)
 
         emb_0, emb_1, emb_2 = model(
-            wrap_input(anchor).to(device),
-            wrap_input(positives).to(device),
-            wrap_input(negatives).to(device),
+            anchor.to(device),
+            positives.to(device),
+            negatives.to(device),
         )
         pos_dist = torch.nn.functional.pairwise_distance(emb_0, emb_1)
         neg_dist = torch.nn.functional.pairwise_distance(emb_0, emb_2)
 
-        dist = unwrap_output(torch.cat((pos_dist, neg_dist), 0))
+        dist = torch.cat((pos_dist, neg_dist), 0).detach().cpu().numpy()
         retrieval = np.argsort(dist)
-        exemplos = torch.cat((positives, negatives), 0).cpu().numpy()
+        examples = torch.cat((positives, negatives), 0).cpu().numpy()
+        examples = examples[retrieval, ...]
 
-        figure = plt.figure()
-        plt.subplot(i, 11, 1, title="Anchor")
+        plt.figure(1)
+        plt.subplot(
+            total_rows,
+            total_columns * 2 + 1,
+            i * (total_columns * 2 + 1) + 1,
+            title="Anchor {}".format(i),
+        )
         plt.imshow(anchor[0].numpy().transpose(2, 1, 0) * 255)
-        for k in range(10):
-            plt.subplot(i, 11, k + 2)
-            plt.imshow(exemplos.transpose(2, 1, 0) * 255)
+        for k in range(total_columns * 2):
+            plt.subplot(
+                total_rows,
+                total_columns * 2 + 1,
+                i * (total_columns * 2 + 1) + k + 2,
+                title="Triplet Log Loss"
+                if (i * (total_columns * 2 + 1) + k + 2)
+                == (total_columns * 2 + 1)
+                else "",
+            )
+            plt.imshow(examples[k].transpose(2, 1, 0) * 255)
 
-    return torch.from_numpy(vimage[:, :, :3].transpose((2, 1, 0)))
+        # model2
+        emb_0, emb_1, emb_2 = model2(
+            anchor.to(device),
+            positives.to(device),
+            negatives.to(device),
+        )
+        pos_dist = torch.nn.functional.pairwise_distance(emb_0, emb_1)
+        neg_dist = torch.nn.functional.pairwise_distance(emb_0, emb_2)
+
+        dist = torch.cat((pos_dist, neg_dist), 0).detach().cpu().numpy()
+        retrieval = np.argsort(dist)
+        examples = torch.cat((positives, negatives), 0).cpu().numpy()
+        examples = examples[retrieval, ...]
+
+        plt.figure(2)
+        plt.subplot(
+            total_rows,
+            total_columns * 2 + 1,
+            i * (total_columns * 2 + 1) + 1,
+            title="Anchor {}".format(i),
+        )
+        plt.imshow(anchor[0].numpy().transpose(2, 1, 0) * 255)
+        for k in range(total_columns * 2):
+            plt.subplot(
+                total_rows,
+                total_columns * 2 + 1,
+                i * (total_columns * 2 + 1) + k + 2,
+                title="Triplet Loss"
+                if (i * (total_columns * 2 + 1) + k + 2)
+                == (total_columns * 2 + 1)
+                else "",
+            )
+            plt.imshow(examples[k].transpose(2, 1, 0) * 255)
+
+    plt.show()
