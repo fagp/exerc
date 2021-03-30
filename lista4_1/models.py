@@ -180,7 +180,10 @@ def train_model(criterion, batch_size=10, batch_acc=1, epochs=10, lr=1e-3):
     trainer.fit(
         net,
         torch.utils.data.DataLoader(
-            training_triplet_dataset, batch_size=batch_size, shuffle=True
+            training_triplet_dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            num_workers=2,
         ),
     )
     return net
